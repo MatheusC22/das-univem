@@ -13,8 +13,8 @@ datasource db {
 model Users {
   user_id       String @id @default(uuid())
   username      String @db.VarChar(255)
-  user_email    String @db.VarChar(500)
-  user_password String @db.VarChar(30)
+  user_email    String @unique @db.VarChar(500)
+  user_password String @db.VarChar(255)
   urls          Urls[]
 }
 
