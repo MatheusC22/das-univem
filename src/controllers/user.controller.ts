@@ -7,13 +7,16 @@ const prisma = new PrismaClient();
 export const createUser = async (req: Request, res: Response) => {
     const { username, user_email, user_password } = req.body;
     try {
-        const salt = bcrypt.genSaltSync(10);
-        const hash_password = bcrypt.hashSync(user_password, salt);
+        //const salt = bcrypt.genSaltSync(10);
+        //const hash_password = bcrypt.hashSync(user_password, salt);
         const User = await prisma.users.create({
             data: {
                 user_email: user_email,
                 username: username,
-                user_password: hash_password
+                user_password: user_password
+            },
+            select:{
+                user_id:true
             }
         })
         return res.status(201).send({ message: "user created", id: User.user_id })
@@ -26,7 +29,7 @@ export const createUser = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
     const { user_id } = req.body;
     try {
-        const User = prisma.users.delete({
+        const User = await prisma.users.delete({
             where: {
                 user_id: user_id
             }
@@ -47,6 +50,9 @@ export const login = async (req: Request, res: Response) => {
         const Uniqueuser = await prisma.users.findUnique({
             where:{
                 user_email:user_email
+            },
+            select:{
+                user_password:true
             }
         })
         if (!Uniqueuser){
@@ -54,7 +60,6 @@ export const login = async (req: Request, res: Response) => {
         }
 
         const check = await bcrypt.compare(user_password,Uniqueuser.user_password);
-
 
         if (check){
             res.status(200).send({message: "user logged"})

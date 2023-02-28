@@ -31,7 +31,7 @@ export const createUrlHash = async (req: Request, res: Response) => {
 }
 
 function generateHash() {
-    const bytes: string = crypto.randomBytes(4).toString('hex')
+    const bytes: string = crypto.randomBytes(3).toString('hex')
     return bytes
 }
 
@@ -41,6 +41,9 @@ export const redirectUrl = async (req: Request, res: Response) => {
         const Url = await prisma.urls.findUnique({
             where: {
                 url_hash: hash
+            },select:{
+                url_hash:true,
+                url_original:true
             }
         })
         if (Url) {
@@ -59,7 +62,7 @@ export const redirectUrl = async (req: Request, res: Response) => {
 export const deleteUrl = async (req: Request, res: Response) => {
     const { url_hash } = req.body
     try {
-        const Url = prisma.urls.delete({
+        const Url = await prisma.urls.delete({
             where: {
                 url_hash: url_hash
             }
